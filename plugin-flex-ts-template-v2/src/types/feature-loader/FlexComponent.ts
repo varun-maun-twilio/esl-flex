@@ -10,6 +10,7 @@ export enum FlexComponent {
   IncomingTaskCanvasActions = 'IncomingTaskCanvasActions',
   MainHeader = 'MainHeader',
   MessageBubble = 'MessageBubble',
+  MessagingCanvas = 'MessagingCanvas',
   MessageCanvasTray = 'MessageCanvasTray',
   MessageInputActions = 'MessageInputActions',
   MessageListItem = 'MessageListItem',

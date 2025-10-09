@@ -1,0 +1,8 @@
+.Twilio-EmailEditor{
+    display: flex;
+    flex-direction: column;
+}
+
+button[id='email-reply-button']{
+   display: none !important;
+}
