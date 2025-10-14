@@ -30,6 +30,8 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
 
         abortFunction();
 
+        
+
         //Remove all participants from email and add them to conversation attributes
         const allConversationParticipants = await conversation?.getParticipants() || [];
         const toParticipantList = [];
@@ -66,11 +68,16 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
         await conversation.updateAttributes(newConvAttributes);
 
 
+        //Fetch Email History
+        const {editMode,historyHtml} = JSON.parse(sessionStorage.getItem(`${conversationSid}-editor`)||"{}");
+        let historyBlock = `<div style="padding-left:1rem;border-left:1px solid #ccc">${historyHtml}</div>`;
+
+
         //Upload attachments and create message
         console.error("attachedFiles", attachedFiles);
         const newMessageBuilder = conversation?.prepareMessage()
             .setSubject(subject)
-            .setEmailBody("text/html", { contentType: "text/html", media: `${htmlBody}` })
+            .setEmailBody("text/html", { contentType: "text/html", media: `${htmlBody+historyBlock}` })
             .setEmailBody("text/plain", { contentType: "text/plain", media: htmlBody });
         for (const file of attachedFiles) {
             const fileData = new FormData();
@@ -133,10 +140,12 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
         sessionStorage.removeItem(conversationSid);
 
 
+        if(editMode!="Forward")
+        {
         //Wrapup Task
         const {sid:taskSid} = task;
-        flex.Actions.invokeAction("WrapupTask", { sid: taskSid });
-        
+       // flex.Actions.invokeAction("WrapupTask", { sid: taskSid });
+        }
 
     });
 };

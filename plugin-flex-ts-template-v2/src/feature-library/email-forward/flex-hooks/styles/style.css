@@ -1,8 +1,28 @@
 .Twilio-EmailEditor{
     display: flex;
     flex-direction: column;
+    position:relative;
 }
 
 button[id='email-reply-button']{
    display: none !important;
+}
+
+#emailEditorHeader{
+    position: absolute;
+    top: 17px;
+    left: 17px;
+    right: 17px;
+    height: 40px;
+    background: #f4f4f6;
+    z-index: 9;
+    display: flex
+;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px 10px;
+}
+
+.Twilio-TranscriptPlayer .custom-email-buttons{
+    display: none;
 }

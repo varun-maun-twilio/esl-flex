@@ -42,6 +42,9 @@
       },
       "email_forward": {
         "enabled": false
+      },
+      "email_search": {
+        "enabled": false
       }
     }
   }
