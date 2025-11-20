@@ -45,6 +45,9 @@
       },
       "email_search": {
         "enabled": false
+      },
+      "chat_participant_handler": {
+        "enabled": false
       }
     }
   }

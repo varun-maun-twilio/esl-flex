@@ -23,6 +23,26 @@ button[id='email-reply-button']{
     padding: 0px 10px;
 }
 
+.custom-email-buttons{
+    padding-top: 10px;
+}
+
 .Twilio-TranscriptPlayer .custom-email-buttons{
     display: none;
+}
+
+.custom-email-participants-block{
+    display: block;
+    border: 1px solid rgb(202, 205, 216);
+    border-bottom: 0px ;
+    margin-top: 16px;
+    padding: 5px 10px;
+}
+
+.custom-email-participants-block b{
+    font-weight: bold;
+}
+
+.custom-email-participants-block + .MuiAccordion-root.MuiAccordion-rounded{
+    margin-top:0px !important;
 }

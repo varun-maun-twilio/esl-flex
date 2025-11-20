@@ -2,6 +2,7 @@ const { prepareFlexFunction, extractStandardResponse, twilioExecute } = require(
   'common/helpers/function-helper'
 ].path);
 
+const moment = require('moment');
 const axios = require('axios');
 
 const requiredParameters = [
@@ -92,17 +93,23 @@ exports.handler = prepareFlexFunction(requiredParameters, async (context, event,
         time: o[1],
         channel: o[6],
         segment: o[2],
-        customerContact: String(o[4]) + o[5],
+        customerContact: String(o[4]).length === 0 ? o[5] : String(o[4]),
         externalContact: o[3],
         conversationSid: o[7],
         direction: o[8],
+        agent: o[9],
       };
+    });
+
+    rows.sort((a, b) => {
+      return moment(`${a.date} ${a.time}`, 'MM/DD/YYYY hh:mm').diff(moment(`${b.date} ${b.time}`, 'MM/DD/YYYY hh:mm'));
     });
 
     response.setBody({ rows });
     return callback(null, response);
   } catch (searchError) {
     console.error(searchError);
-    return handleError(searchError);
+    response.setBody({ rows: [] });
+    return callback(null, response);
   }
 });

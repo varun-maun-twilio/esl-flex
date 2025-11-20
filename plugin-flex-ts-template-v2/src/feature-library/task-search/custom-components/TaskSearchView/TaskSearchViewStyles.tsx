@@ -29,6 +29,8 @@ border-collapse: collapse;
 
 
 th, td {
+  white-space: normal;
+  word-break: break-word;
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
@@ -38,7 +40,7 @@ th, td {
 thead{
     position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 9;
 }
 
 th {
@@ -57,6 +59,36 @@ tr.even-row {
 
 tr.selected{
     background:#c9e0ff;
+}
+
+th:nth-child(1),
+td:nth-child(1) {
+  width: 120px;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 60px;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 200px;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+  width: 200px;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+  width: 200px;
+}
+
+th:nth-child(6),
+td:nth-child(6) {
+  width: 200px;
 }
 
 

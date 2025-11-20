@@ -31,6 +31,11 @@ const EmailForwardBtn = (props: any) => {
         const toEmailAddresses = [];
         const ccEmailAddresses = [];
 
+        if(props?.message?.source?.attributes?.direction=== 'outbound'){
+            toEmailAddresses.push(... (props?.message?.source?.attributes?.to || []).map((a:string)=>{return {address:a}}));
+            ccEmailAddresses.push(... (props?.message?.source?.attributes?.cc || []).map((a:string)=>{return {address:a}}));
+        }
+        else{
        
         const emailParticipants = props.recipientList|| [];
             for(let p of emailParticipants){
@@ -42,12 +47,12 @@ const EmailForwardBtn = (props: any) => {
                 } 
             }
        
-
+        }
         
         
 
         const conversationPersistence = sessionStorage.getItem(props.conversationSid||"");
-        console.error(conversationPersistence);
+        //console.error(conversationPersistence);
         const convPersistedObj = JSON.parse(conversationPersistence||"{}");
         convPersistedObj.toParticipants = toEmailAddresses;
         convPersistedObj.ccParticipants = ccEmailAddresses;
@@ -78,12 +83,17 @@ const EmailForwardBtn = (props: any) => {
     const reply = async ()=>{
 
 
-        console.error(props);
+        //console.error("replyProps",props);
 
      
 
         const toEmailAddresses = [];
    
+
+        if(props?.message?.source?.attributes?.direction=== 'outbound'){
+            toEmailAddresses.push(... (props?.message?.source?.attributes?.to || []).map((a:string)=>{return {address:a}}));
+        }
+        else{
 
         const emailParticipants = props.recipientList|| [];
             for(let p of emailParticipants){
@@ -92,8 +102,9 @@ const EmailForwardBtn = (props: any) => {
                 }
                
             }
+        }
         
-        
+        //console.error("replyProps toEmailAddresses",toEmailAddresses);
 
         
         
@@ -132,7 +143,7 @@ const EmailForwardBtn = (props: any) => {
 
 
         const conversationPersistence = sessionStorage.getItem(props.conversationSid||"");
-        console.error(conversationPersistence);
+        //console.error(conversationPersistence);
         const convPersistedObj = JSON.parse(conversationPersistence||"{}");
         convPersistedObj.toParticipants = [];
         convPersistedObj.ccParticipants = [];

@@ -2,8 +2,6 @@ const { prepareFlexFunction, extractStandardResponse, twilioExecute } = require(
   'common/helpers/function-helper'
 ].path);
 
-const { emailAddresses } = require(Runtime.getAssets()['/features/esl-email-config.js'].path);
-
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 
@@ -35,14 +33,16 @@ const requiredParameters = [
 ];
 
 exports.handler = prepareFlexFunction(requiredParameters, async (context, event, callback, response, handleError) => {
+  const emailAddresses = (await axios.get(`${process.env.COMMON_CONFIG_DOMAIN}/esl-email-config.json`)).data;
+  console.error(event);
   try {
     const { from: twilioFrom, to, cc, subject, body, conversationSid, conversationMessageSid } = event;
-    const identifiedConfig = emailAddresses.filter((ed) => ed.twilioEmail === twilioFrom)?.[0];
+    const identifiedConfig = emailAddresses.filter((ed) => ed.twilioEmailAddress === twilioFrom)?.[0];
 
     if (identifiedConfig === null) {
       return handleError(new Error('from address incorrect'));
     }
-    const originalFrom = identifiedConfig.originalTarget;
+    const originalFrom = identifiedConfig.realEmailAddress;
     const twilioClient = context.getTwilioClient();
 
     const conversationMessage = await twilioClient.conversations.v1
@@ -76,37 +76,33 @@ exports.handler = prepareFlexFunction(requiredParameters, async (context, event,
       }
     }
 
-    await nodemailer.createTestAccount(async (err, account) => {
-      if (err) {
-        console.error(`Failed to create a testing account. ${err.message}`);
-        return;
-      }
+    const SMTP_HOST = identifiedConfig.smtpHost;
+    const SMTP_PORT = identifiedConfig.smtpPort;
 
-      // 1️⃣  Configure a transporter that talks to Ethereal
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false, // upgrade later with STARTTLS
-        auth: {
-          user: account.user, // generated user
-          pass: account.pass, // generated password
-        },
-      });
-
-      // 2️⃣  Send a message
-      const messageInfo = await transporter
-        .sendMail({
-          from: originalFrom,
-          to,
-          subject,
-          html: body,
-          attachments: emailAttachments,
-        })
-        .catch(console.error);
-      console.error(nodemailer.getTestMessageUrl(messageInfo));
-
-      response.setBody({ message: 'success', preview: nodemailer.getTestMessageUrl(messageInfo) });
+    const transporter = nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: false,
     });
+
+    console.error({
+      from: originalFrom,
+      to,
+      subject,
+      html: body,
+      attachments: emailAttachments,
+    });
+
+    const emailInfo = await transporter.sendMail({
+      from: originalFrom,
+      to,
+      subject,
+      html: body,
+      attachments: emailAttachments,
+    });
+
+    response.setBody({ message: 'success', emailInfo });
+
     return callback(null, response);
   } catch (searchError) {
     console.error(searchError);

@@ -17,10 +17,23 @@ import { Spinner } from "@twilio-paste/core";
 import { LoadingIcon } from "@twilio-paste/icons/esm/LoadingIcon";
 import { DatePicker, formatReturnDate } from '@twilio-paste/core/date-picker';
 import moment from 'moment';
+import {
+  SideModal,
+  SideModalBody,
+  SideModalButton,
+  SideModalContainer,
+  SideModalHeader,
+  SideModalHeading,
+  useSideModalState,
+} from '@twilio-paste/core/side-modal';
+import { MessagingCanvas } from '@twilio/flex-ui';
 import TaskSearchService from '../../utils/TaskSearchService';
 
 
 import * as St from "./TaskSearchViewStyles";
+
+
+import "./styles.css"
 
 
 
@@ -31,6 +44,9 @@ const FILTER_MAP = {
 }
 
 const TaskSearchView = () => {
+
+  const chatDialog = useSideModalState({});
+  const [selectedConversationSid,setSelectedConversationSid] = useState(null);
 
   const [showLoading, setShowLoading] = useState<boolean>(false);
   const [insightsToken, setInsightsToken] = useState<string>("");
@@ -43,30 +59,45 @@ const TaskSearchView = () => {
   const [channelInput, setChannelInput] = useState("Call");
 
 
-  const executeSearch2 = async (filterIdMap: any) => {
 
 
-
-  }
-
-  const initialize = async () => {
+  const fetchToken = async () => {
     const insightsTokenResponse = await TaskSearchService.fetchToken();
-    console.error("insightsToken", insightsTokenResponse);
     const token = insightsTokenResponse.tempToken;
     setInsightsToken(token);
 
   }
 
-  useEffect(() => {
-
-
-    initialize();
-
-  }, []);
 
   useEffect(() => {
+    let timeoutId:any;
 
-  }, []);
+    const fetchData = async () => {
+      try {
+        await fetchToken();
+      } catch (err) {
+        console.error('Polling error:', err);
+      } finally {
+        // Schedule the next poll after a delay
+        timeoutId = setTimeout(fetchData, 120*1000); 
+      }
+    };
+
+    fetchData(); 
+
+    return () => {
+      clearTimeout(timeoutId); 
+    };
+  }, []); // Empty dependency array to run only once on mount
+
+  useEffect(() => {
+
+  }, [insightsToken]);
+
+
+  useEffect(()=>{
+    //Do Nothing
+  },[selectedConversationSid]);
 
 
   const executeSearch = async () => {
@@ -90,7 +121,6 @@ const TaskSearchView = () => {
       return map;
     }, {});
 
-    console.error("filterIdMap", filterIdMap);
 
     const filterObj: any = {};
 
@@ -125,7 +155,6 @@ const TaskSearchView = () => {
 
     }
 
-    console.error("filterObj", filterObj);
 
     const filterResponse = await TaskSearchService.getFilterValues(insightsToken, filterObj);
     const filterMap = filterResponse?.filterMap;
@@ -147,6 +176,11 @@ const TaskSearchView = () => {
     setChannelInput("Call");
   }
 
+
+
+  if(insightsToken==""){
+    return null;
+  }
 
 
   return (
@@ -187,7 +221,7 @@ const TaskSearchView = () => {
               <td>
                 <Combobox
                   autocomplete
-                  items={["email", "Call", "Chat", "SMS"]}
+                  items={[ "Call", "Chat", "SMS","video","email"]}
                   labelText="Select Channel"
                   selectedItem={channelInput}
                   onSelectedItemChange={changes => {
@@ -247,6 +281,7 @@ const TaskSearchView = () => {
               <th>Segment</th>
               <th>External Contact</th>
               <th>Customer Contact</th>
+              <th>Agent</th>
             </tr>
           </thead>
           <tbody>
@@ -258,11 +293,15 @@ const TaskSearchView = () => {
                 </td>
                 <td>
                   {
-                    message.channel !== "Call" &&
-                    <a href="#" onClick={() => TwilioFlex.Actions.invokeAction("InsightsPlayerPlay", { segmentId: message.segment })}>{message.segment}</a>
+                    ( message.channel !== "Call" && message.channel !== "video" ) &&
+                    <a href="#" onClick={() => {
+                      setSelectedConversationSid(message?.conversationSid);
+                      chatDialog.show();
+                   // TwilioFlex.Actions.invokeAction("InsightsPlayerPlay", { segmentId: message.segment });
+                  }}>{message.segment}</a>
                   }
                   {
-                    message.channel === "Call" &&
+                    (message.channel === "Call" || message.channel === "video") &&
                     <p>{message.segment}</p>
                   }
 
@@ -276,6 +315,10 @@ const TaskSearchView = () => {
                   {message.customerContact}
                 </td>
 
+                <td>
+                  {message.agent}
+                </td>
+
               </tr>
             ))}
           </tbody>
@@ -286,6 +329,37 @@ const TaskSearchView = () => {
 
 
       </Flex>
+      <Box display="flex" flexDirection="column" rowGap="space70">
+      <Box>
+        <SideModalContainer state={chatDialog}>
+          <SideModal aria-label="Basic Side Modal">
+            <SideModalHeader>
+              <SideModalHeading>
+                Transcript
+              </SideModalHeading>
+            </SideModalHeader>
+            <SideModalBody>
+              
+              <Box className="custom-chat-wrapper" key="custom-chat-wrapper-component" style={{ height: 600, minHeight: 600 }}>
+
+          {/* <Heading>Hello CRM</Heading> */}
+
+{selectedConversationSid &&
+          <MessagingCanvas key="conversation-messaging-canvas" sid={selectedConversationSid} conversationType={(channelInput === "email")?"email":"chat"} autoInitConversation={true}>
+            </MessagingCanvas>
+}
+{!selectedConversationSid && 
+<p>No Transcript Found</p>}
+
+
+        </Box>
+              
+            </SideModalBody>
+          </SideModal>
+        </SideModalContainer>
+      </Box>
+     
+    </Box>
     </St.TaskSearchViewViewWrapper>
   );
 };

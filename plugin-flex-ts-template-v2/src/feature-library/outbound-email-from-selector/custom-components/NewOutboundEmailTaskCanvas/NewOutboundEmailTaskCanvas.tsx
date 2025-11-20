@@ -36,7 +36,7 @@ interface Props {
 
     const fetchEmailList = async ()=>{
        const configuredEmailOptions = await NewOutboundEmailTaskService.fetchEmailList();
-       console.error(configuredEmailOptions);
+       //console.error(configuredEmailOptions);
        setEmailList(configuredEmailOptions);
     }
 
@@ -72,7 +72,7 @@ interface Props {
 
 
         //3. Extract Queue
-       console.error(emailList);
+       //console.error(emailList);
         const queueSid = emailList.filter((q:any)=>q["value"]===selectedFrom.value)[0].queueSid;
 
         //4. Create new task
@@ -82,7 +82,15 @@ interface Props {
                 destination: selectedTo,
                 queueSid:queueSid,
                 from:selectedFrom.value ,
-                fromName: "ESL"
+                fromName: "ESL",
+                taskAttributes:{
+                  "conversations":{
+                    "external_contact" : selectedFrom.value
+                },
+                "customers" : {
+                    "email" : selectedTo
+                }
+                }
               });
         }
 

@@ -8,7 +8,8 @@ class NewOutboundEmailTaskService extends ApiService {
  
   fetchEmailList = async (): Promise<any> => {
     const encodedParams: EncodedParams = {
-      Token: encodeURIComponent(this.manager.user.token)
+      Token: encodeURIComponent(this.manager.user.token),
+      flexUserSid: this.manager.store.getState().flex.session.ssoTokenPayload.flexUserSid
     };
     try {
       return await this.fetchJsonWithReject<any>(

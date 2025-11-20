@@ -3,6 +3,7 @@ import { TaskHelper } from "@twilio/flex-ui";
 import { TaskChannels } from "@twilio/flex-ui";
 import { FlexActionEvent, FlexAction } from '../../../../types/feature-loader';
 import SendEmailService from "../../utils/SendEmailService";
+import TaskRouterService from "../../../../utils/serverless/TaskRouter/TaskRouterService";
 import logger from '../../../../utils/logger';
 
 export const actionEvent = FlexActionEvent.before;
@@ -10,7 +11,7 @@ export const actionName = FlexAction.SendMessage;
 export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _manager: Flex.Manager) {
     flex.Actions.addListener(`${actionEvent}${actionName}`, async (payload, abortFunction) => {
 
-        console.error(payload);
+        console.error("Sending Email Outbound",payload);
 
 
         const { conversationSid, htmlBody, subject, attachedFiles } = payload;
@@ -20,13 +21,14 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
         }
 
         const task: any = TaskHelper.getTaskFromConversationSid(conversationSid) as any;
+
         const conversation = _manager.store.getState().flex.chat.conversations[conversationSid].source;
 
         if (conversation == null) {
             return;
         }
 
-        console.error("conversation",conversation);
+        //console.error("conversation",conversation);
 
         abortFunction();
 
@@ -40,11 +42,15 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
             console.error(p);
             if (p?.bindings?.email?.level == "to") {
                 toParticipantList.push(p?.bindings?.email?.address);
+                try{
                 await conversation?.removeParticipant(p);
+                }catch(e){}
             }
             else if (p?.bindings?.email?.level == "cc") {
                 ccParticipantList.push(p?.bindings?.email?.address);
+                try{
                 await conversation?.removeParticipant(p);
+                }catch(e){}
             }
         }
 
@@ -70,13 +76,26 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
 
         //Fetch Email History
         const {editMode,historyHtml} = JSON.parse(sessionStorage.getItem(`${conversationSid}-editor`)||"{}");
-        let historyBlock = `<div style="padding-left:1rem;border-left:1px solid #ccc">${historyHtml}</div>`;
+        let historyBlock =  (historyHtml!==undefined)? `<div style="padding-left:1rem;border-left:1px solid #ccc">${historyHtml}</div>`:"";
+        
+
+//Extract From
+let from = "ESL";
+const projectedAddress = 
+conversation?.bindings?.email?.projected_address; 
+if(projectedAddress!=null){
+    from = ((projectedAddress.split("@")[0].indexOf("+") 
+    > -1) ? projectedAddress.split("@")[0].split("+").slice(0, 
+    -1).join("+") : projectedAddress.split("@")[0]) + "@" + 
+    projectedAddress.split("@")[1];
+}
 
 
         //Upload attachments and create message
         console.error("attachedFiles", attachedFiles);
         const newMessageBuilder = conversation?.prepareMessage()
             .setSubject(subject)
+            .setAttributes({direction: 'outbound',to:toParticipantList,cc:ccParticipantList,from:[from]})
             .setEmailBody("text/html", { contentType: "text/html", media: `${htmlBody+historyBlock}` })
             .setEmailBody("text/plain", { contentType: "text/plain", media: htmlBody });
         for (const file of attachedFiles) {
@@ -85,6 +104,8 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
             newMessageBuilder.addMedia(fileData);
         }
         const messageIndex = await newMessageBuilder.build().send();
+
+        console.error("messageIndex",messageIndex);
 
         if (messageIndex == null) {
             return;
@@ -95,16 +116,14 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
         const lastMessageSid= lastMessage.sid;
 
        
-        //Extract From
-        let from = "ESL";
-        const projectedAddress = 
-        conversation?.bindings?.email?.projected_address; 
-        if(projectedAddress!=null){
-            from = ((projectedAddress.split("@")[0].indexOf("+") 
-            > -1) ? projectedAddress.split("@")[0].split("+").slice(0, 
-            -1).join("+") : projectedAddress.split("@")[0]) + "@" + 
-            projectedAddress.split("@")[1];
-        }
+        console.error({ from: from,
+            to: toParticipantList.join(","),
+            cc:ccParticipantList.join(","),
+            conversationSid,
+            body: htmlBody,
+            subject: subject,
+            conversationMessageSid:lastMessageSid});
+        
         
 
         try{
@@ -139,13 +158,16 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
 
         sessionStorage.removeItem(conversationSid);
 
+        await TaskRouterService.updateTaskAttributes(task.taskSid, {
+            "conversations":{
+                "conversation_label_2":conversationSid,
+                "external_contact" : from
+            }
+        });
 
-        if(editMode!="Forward")
-        {
-        //Wrapup Task
         const {sid:taskSid} = task;
-       // flex.Actions.invokeAction("WrapupTask", { sid: taskSid });
-        }
+        flex.Actions.invokeAction("WrapupTask", { sid: taskSid });
+        
 
     });
 };
