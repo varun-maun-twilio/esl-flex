@@ -48,6 +48,9 @@
       },
       "chat_participant_handler": {
         "enabled": false
+      },
+      "rbac_skill_management": {
+        "enabled": false
       }
     }
   }

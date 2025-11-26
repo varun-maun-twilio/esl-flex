@@ -14,15 +14,23 @@ export const jsClientHook = function autocompleteTaskOnClientLeaving(
   manager: Flex.Manager,
   conversation: Conversation,
 ) {
+    /*
     const task = Flex.TaskHelper.getTaskFromConversationSid(conversation.sid);
+    console.error("task",task);
+    console.error("task channel",task?.taskChannelUniqueName);
     if(task && Flex.TaskHelper.isCBMTask(task) && task.taskChannelUniqueName!=="email"){
         conversation.on("participantLeft",async (participant)=>{
             const newP = await conversation.getParticipants();
-              if(newP.length==1 && newP[0].identity === manager.conversationsClient.user.identity){
-                  flex.Actions.invokeAction("WrapupTask", { sid: task.sid });
+              if(newP.length==1){
+                const reservationSid = Array.from(await manager?.workerClient?.reservations?.values() || []).filter(r => r.task.sid === task?.sid)?.[0]?.sid;
+                if (reservationSid) {
+                  flex.Actions.invokeAction("WrapupTask", { sid: reservationSid });
+                }
               }
         })
     }
+
+    */
 
 
  

@@ -11,9 +11,6 @@ export const actionName = FlexAction.SendMessage;
 export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _manager: Flex.Manager) {
     flex.Actions.addListener(`${actionEvent}${actionName}`, async (payload, abortFunction) => {
 
-        console.error("Sending Email Outbound",payload);
-
-
         const { conversationSid, htmlBody, subject, attachedFiles } = payload;
         //Check if this is an email task
         if (!conversationSid || !htmlBody || TaskChannels.getForConversation(conversationSid).name != 'chat-email') {
@@ -54,11 +51,11 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
             }
         }
 
-        console.error(toParticipantList, ccParticipantList);
+        //console.error(toParticipantList, ccParticipantList);
 
         const prevConversationAttributesJSON = await conversation?.getAttributes();
         const prevConvAttributes = JSON.parse(JSON.stringify(prevConversationAttributesJSON || {}));
-        console.error("prevConvAttributes",prevConvAttributes);
+        //console.error("prevConvAttributes",prevConvAttributes);
         const newConvAttributes = {
             ...(prevConvAttributes || {}),
             to: [
@@ -70,7 +67,7 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
                 ...ccParticipantList
             ],
         }
-        console.error("newConvAttributes",newConvAttributes);
+        //console.error("newConvAttributes",newConvAttributes);
         await conversation.updateAttributes(newConvAttributes);
 
 
@@ -92,7 +89,7 @@ if(projectedAddress!=null){
 
 
         //Upload attachments and create message
-        console.error("attachedFiles", attachedFiles);
+        //console.error("attachedFiles", attachedFiles);
         const newMessageBuilder = conversation?.prepareMessage()
             .setSubject(subject)
             .setAttributes({direction: 'outbound',to:toParticipantList,cc:ccParticipantList,from:[from]})
@@ -105,7 +102,7 @@ if(projectedAddress!=null){
         }
         const messageIndex = await newMessageBuilder.build().send();
 
-        console.error("messageIndex",messageIndex);
+        //console.error("messageIndex",messageIndex);
 
         if (messageIndex == null) {
             return;
@@ -116,6 +113,7 @@ if(projectedAddress!=null){
         const lastMessageSid= lastMessage.sid;
 
        
+        /*
         console.error({ from: from,
             to: toParticipantList.join(","),
             cc:ccParticipantList.join(","),
@@ -123,7 +121,7 @@ if(projectedAddress!=null){
             body: htmlBody,
             subject: subject,
             conversationMessageSid:lastMessageSid});
-        
+        */
         
 
         try{

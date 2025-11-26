@@ -2,7 +2,7 @@ const { prepareStudioFunction, extractStandardResponse } = require(Runtime.getFu
   'common/helpers/function-helper'
 ].path);
 
-const { emailAddresses } = require(Runtime.getAssets()['/features/esl-email-config.js'].path);
+const axios = require('axios');
 
 const requiredParameters = [{ key: 'to', purpose: 'to address where the email has reached flex' }];
 
@@ -10,7 +10,9 @@ exports.handler = prepareStudioFunction(requiredParameters, async (context, even
   try {
     const { to } = event;
 
-    const toLookup = emailAddresses.filter((o) => o.twilioEmail === to)?.[0]?.originalTarget || to;
+    const emailAddresses = (await axios.get(`${process.env.COMMON_CONFIG_DOMAIN}/esl-email-config.json`)).data;
+
+    const toLookup = emailAddresses.filter((o) => o.twilioEmailAddress === to)?.[0]?.realEmailAddress || to;
 
     response.setStatusCode(200);
     response.setBody({ to: toLookup });

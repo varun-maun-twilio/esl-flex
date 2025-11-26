@@ -27,7 +27,7 @@ const EmailForwardBtn = (props: any) => {
 
     const replyAll = async ()=>{
 
-        console.error(props);
+       // console.error(props);
         const toEmailAddresses = [];
         const ccEmailAddresses = [];
 

@@ -36,8 +36,6 @@ async function fetchElements(tempToken, elementLabelToUri) {
 exports.handler = prepareFlexFunction(requiredParameters, async (context, event, callback, response, handleError) => {
   try {
     const { tempToken, filterObj } = event;
-    console.error(typeof filterObj);
-    console.error(filterObj);
 
     const filters = JSON.parse(filterObj);
 

@@ -12,7 +12,7 @@ export const componentHook = function addForwardBtnForEmailTasks(flex: typeof Fl
   const CustomRecepients = (props:any) => {
 
     useEffect(()=>{
-      console.error(props);
+      //console.error(props);
     },[]);
 
     if(props?.message?.source?.attributes?.to === undefined){

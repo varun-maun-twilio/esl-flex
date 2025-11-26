@@ -52,7 +52,6 @@ exports.handler = prepareFlexFunction(requiredParameters, async (context, event,
   try {
     const superToken = await fetchInsightsSuperToken();
     const tempToken = await fetchInsightsTempToken(superToken);
-    console.error(tempToken);
     response.setBody({ message: 'success', tempToken });
     return callback(null, response);
   } catch (fetchTokenError) {

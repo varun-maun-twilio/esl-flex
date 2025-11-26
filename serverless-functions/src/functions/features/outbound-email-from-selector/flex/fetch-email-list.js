@@ -21,7 +21,6 @@ exports.handler = prepareFlexFunction(requiredParameters, async (context, event,
   );
 
   if (!flexUserResponse.data) {
-    console.error('flexUserResponse.data', flexUserResponse.data);
     return handleError(new Error('data not found'));
   }
 
@@ -42,13 +41,16 @@ exports.handler = prepareFlexFunction(requiredParameters, async (context, event,
       flexTeamName = flexTeamResponse.data?.friendly_name;
     }
   }
-  console.error('flexTeamName', flexTeamName);
 
   try {
     response.setBody(
       emailAddresses
         .filter((o) => {
-          return (flexTeamName === 'default' && o.managementTeam === '') || flexTeamName === o.managementTeam;
+          const configuredManagementTeams = o.managementTeam.split(',').map((t) => t.trim());
+          return (
+            (flexTeamName === 'default' && o.managementTeam === '') ||
+            configuredManagementTeams.indexOf(flexTeamName) > -1
+          );
         })
         .map((o) => {
           return {

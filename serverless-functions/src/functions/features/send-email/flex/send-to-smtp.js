@@ -34,7 +34,6 @@ const requiredParameters = [
 
 exports.handler = prepareFlexFunction(requiredParameters, async (context, event, callback, response, handleError) => {
   const emailAddresses = (await axios.get(`${process.env.COMMON_CONFIG_DOMAIN}/esl-email-config.json`)).data;
-  console.error(event);
   try {
     const { from: twilioFrom, to, cc, subject, body, conversationSid, conversationMessageSid } = event;
     const identifiedConfig = emailAddresses.filter((ed) => ed.twilioEmailAddress === twilioFrom)?.[0];
@@ -83,14 +82,6 @@ exports.handler = prepareFlexFunction(requiredParameters, async (context, event,
       host: SMTP_HOST,
       port: SMTP_PORT,
       secure: false,
-    });
-
-    console.error({
-      from: originalFrom,
-      to,
-      subject,
-      html: body,
-      attachments: emailAttachments,
     });
 
     const emailInfo = await transporter.sendMail({

@@ -62,7 +62,6 @@ async function downloadReport(tempToken, reportUri) {
       },
     })
     .then(async (response) => {
-      console.error(response.status);
       if (response.status === 202) {
         return downloadReport(tempToken, reportUri);
       }
