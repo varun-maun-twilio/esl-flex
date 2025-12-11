@@ -10,11 +10,15 @@ export const eventHook = async function registerRbacForSkillManagementOnInit(
 ) {
 
 
+
   manager.conversationsClient.addListener("participantLeft",(participant)=>{
     const conversationSid = participant.conversation.sid;
     console.error("Participant left for ",conversationSid,participant);
     const task = TaskHelper.getTaskFromConversationSid(conversationSid);
-    if(task){
+    if(task && task.taskChannelUniqueName=="chat"){
+
+     
+
     const conversationState = StateHelper.getConversationStateForTask(task);
     if(conversationState){
         const conversationHelper = new ConversationHelper(conversationState);
@@ -24,6 +28,7 @@ export const eventHook = async function registerRbacForSkillManagementOnInit(
         }
     }
   }
+  
   })
 
   //Check all chat tasks to check if particpants have left
@@ -59,6 +64,7 @@ export const eventHook = async function registerRbacForSkillManagementOnInit(
             }
       })*/
 
+            
       }
     }
   }
@@ -66,3 +72,5 @@ export const eventHook = async function registerRbacForSkillManagementOnInit(
 
 
 };
+
+
