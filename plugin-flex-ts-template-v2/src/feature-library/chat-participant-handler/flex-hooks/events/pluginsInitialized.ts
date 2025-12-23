@@ -11,22 +11,22 @@ export const eventHook = async function registerRbacForSkillManagementOnInit(
 
 
 
-  manager.conversationsClient.addListener("participantLeft",(participant)=>{
+  manager.conversationsClient.addListener("participantLeft",async (participant)=>{
     const conversationSid = participant.conversation.sid;
-    console.error("Participant left for ",conversationSid,participant);
+    console.error("CHAT-PARTICIPANT-HANDLER: Participant left for ",conversationSid,participant);
     const task = TaskHelper.getTaskFromConversationSid(conversationSid);
     if(task && task.taskChannelUniqueName=="chat"){
 
+         const conversationToBeChecked = await manager.conversationsClient.getConversationBySid(conversationSid);
      
+       const convParticipantCount = await conversationToBeChecked.getParticipantsCount();
+      console.error("CHAT-PARTICIPANT-HANDLER: Participant left Participant Count ", convParticipantCount);
+      if (convParticipantCount == 1) {
+        flex.Actions.invokeAction("WrapupTask", { task });
 
-    const conversationState = StateHelper.getConversationStateForTask(task);
-    if(conversationState){
-        const conversationHelper = new ConversationHelper(conversationState);
-        const isCustomerOnline = conversationHelper.isCustomerOnline;
-        if(!isCustomerOnline){
-          flex.Actions.invokeAction("WrapupTask", { task });
-        }
-    }
+      }
+
+   
   }
   
   })
@@ -43,6 +43,7 @@ export const eventHook = async function registerRbacForSkillManagementOnInit(
       const conversationToBeChecked = await manager.conversationsClient.getConversationBySid(cTask.attributes.conversationSid);
       if (conversationToBeChecked) {
         const convParticipantCount = await conversationToBeChecked.getParticipantsCount();
+         console.error("CHAT-PARTICIPANT-HANDLER: On Load check all Participant Count ",convParticipantCount);
         if (convParticipantCount == 1) {
           const task = TaskHelper.getTaskFromConversationSid(conversationToBeChecked.sid);
           
@@ -50,20 +51,7 @@ export const eventHook = async function registerRbacForSkillManagementOnInit(
           
         }
 
-        /*
-
-        conversationToBeChecked.on("participantLeft",async (participant)=>{
-         
-          const convParticipantCount = await conversationToBeChecked.getParticipantsCount();
-            if(convParticipantCount == 1){
-              const task = TaskHelper.getTaskFromConversationSid(conversationToBeChecked.sid);
-              const reservationSid = Array.from(await manager?.workerClient?.reservations?.values() || []).filter(r => r.task.sid === task?.sid)?.[0]?.sid;
-              if (reservationSid) {
-                flex.Actions.invokeAction("WrapupTask", { sid: reservationSid });
-              }
-            }
-      })*/
-
+        
             
       }
     }

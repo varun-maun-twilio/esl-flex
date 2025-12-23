@@ -56,6 +56,7 @@ const TaskSearchView = () => {
   const [endDate, setEndDate] = useState(moment().format('YYYY-MM-DD'));
   const [externalContactInput, setExternalContactInput] = useState("");
   const [customerContactInput, setCustomerContactInput] = useState("");
+  const [conversationSidInput, setConversationSidInput] = useState("");
   const [channelInput, setChannelInput] = useState("Call");
 
 
@@ -107,6 +108,7 @@ const TaskSearchView = () => {
       endDate,
       externalContactInput,
       customerContactInput,
+      conversationSidInput,
       channelInput
     }
 
@@ -155,6 +157,12 @@ const TaskSearchView = () => {
 
     }
 
+     //Filter for conversation Sid
+    if (conversationSidInput != null && conversationSidInput.trim().length > 0) {
+      filterObj[filterIdMap['label.conversations.conversation_label_2']] = encodeURIComponent(conversationSidInput.trim());
+    }
+
+
 
     const filterResponse = await TaskSearchService.getFilterValues(insightsToken, filterObj);
     const filterMap = filterResponse?.filterMap;
@@ -174,6 +182,8 @@ const TaskSearchView = () => {
     setExternalContactInput("");
     setCustomerContactInput("");
     setChannelInput("Call");
+    setConversationSidInput("");
+    setSearchResults([]);
   }
 
 
@@ -253,6 +263,17 @@ const TaskSearchView = () => {
                   onChange={e => setCustomerContactInput(e.target.value)}
                 />
               </td>
+              <td >
+                <Label htmlFor={"search-conversationsid"}>Conversation Sid:</Label>
+                <Input
+                  type="text"
+                  id="search-conversationsid"
+                  name="search-conversationsid"
+                  placeholder="Conversation Sid"
+                  value={conversationSidInput}
+                  onChange={e => setConversationSidInput(e.target.value)}
+                />
+              </td>
               <td className="btn">
                 <Button variant="primary" onClick={executeSearch} >Search</Button>
               </td>
@@ -278,7 +299,7 @@ const TaskSearchView = () => {
             <tr>
               <th>Date Time</th>
               <th>Channel</th>
-              <th>Segment</th>
+              <th>Conversation Sid</th>
               <th>External Contact</th>
               <th>Customer Contact</th>
               <th>Agent</th>
@@ -298,11 +319,11 @@ const TaskSearchView = () => {
                       setSelectedConversationSid(message?.conversationSid);
                       chatDialog.show();
                    // TwilioFlex.Actions.invokeAction("InsightsPlayerPlay", { segmentId: message.segment });
-                  }}>{message.segment}</a>
+                  }}>{message.conversationSid}</a>
                   }
                   {
                     (message.channel === "Call" || message.channel === "video") &&
-                    <p>{message.segment}</p>
+                    <p>{message.conversationSid || ""}</p>
                   }
 
                 </td>

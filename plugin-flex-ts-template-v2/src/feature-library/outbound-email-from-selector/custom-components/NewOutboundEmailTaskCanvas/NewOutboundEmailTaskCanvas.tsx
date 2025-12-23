@@ -77,6 +77,8 @@ interface Props {
 
         //4. Create new task
 
+        console.error("Selected From",selectedFrom);
+
         if(!hasValidationErrors){
             Flex.Actions.invokeAction("StartOutboundEmailTask", {
                 destination: selectedTo,
@@ -85,7 +87,7 @@ interface Props {
                 fromName: "ESL",
                 taskAttributes:{
                   "conversations":{
-                    "external_contact" : selectedFrom.value
+                    "external_contact" : selectedFrom.label
                 },
                 "customers" : {
                     "email" : selectedTo
