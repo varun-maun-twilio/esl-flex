@@ -11,14 +11,16 @@ exports.handler = prepareStudioFunction(requiredParameters, async (context, even
     const { emailSubject, emailBody, emailFrom, emailTo, engagementID, attachments } = event;
 
     const params = new URLSearchParams();
-    params.append(emailSubject, emailSubject);
-    params.append(emailBody, emailBody);
-    params.append(emailFrom, emailFrom);
-    params.append(emailTo, emailTo);
-    params.append(engagementID, engagementID);
+    params.append('emailSubject', emailSubject);
+    params.append('emailBody', emailBody);
+    params.append('emailFrom', emailFrom);
+    params.append('emailTo', emailTo);
+    params.append('engagementID', engagementID);
+    params.append('emailAttachments', attachments);
+    console.log('email-evaluation: params: ', params);
 
     const result = await axios.post(
-      `https://avaya-basic-auth-router-001-57605936772.asia-northeast1.run.app/proxy/email-eval-inbound`,
+      process.env.ARION_EVALUATION_URL,
       params,
       {
         auth: {

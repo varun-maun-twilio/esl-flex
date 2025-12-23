@@ -17,22 +17,19 @@ exports.handler = prepareStudioFunction(requiredParameters, async (context, even
     params.append('emailTo', emailTo);
     params.append('engagementID', engagementID);
     params.append('emailAttachments', attachments);
-    console.log('prescreen-check: params: ', params);
+    console.log('email-evaluation: params: ', params);
+
     const result = await axios.post(
-      process.env.ARION_PRESCREEN_URL,
+      process.env.ZENDESK_ENDPOINT_URL,
       params,
       {
-        auth: {
-          username: process.env.ARION_USERNAME,
-          password: process.env.ARION_PASSWORD,
-        },
       },
     );
 
-    const { significant, liveAgent, arion_route } = result.data;
+    const { liveAgent, replyContent } = result.data;
 
     response.setStatusCode(result.status);
-    response.setBody({ significant, liveAgent, arion_route });
+    response.setBody({ liveAgent, replyContent });
     return callback(null, response);
   } catch (error) {
     return handleError(error);

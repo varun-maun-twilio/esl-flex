@@ -22,6 +22,7 @@ async function fetchIdentifiers(tempToken) {
           'label.conversations.external_contact',
           'date.date.yyyymmdd',
           'label.customers.phone_label',
+           'label.conversations.conversation_label_2'
         ],
       },
       {
