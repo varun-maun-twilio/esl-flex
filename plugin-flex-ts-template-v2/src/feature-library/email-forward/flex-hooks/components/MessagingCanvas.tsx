@@ -49,7 +49,6 @@ export const componentHook = function addForwardBtnForEmailTasks(flex: typeof Fl
       return null;
     }
     return (<div id="emailEditorHeader">{JSON.parse(sessionStorage.getItem(props.conversationSid+"-editor")||"{}").editMode || "Reply"} <button onClick={()=>{
-      console.error(props);
       sessionStorage.removeItem(props.conversationSid+"-editor");
       Flex.Manager.getInstance().store.dispatch({
         type: "TOGGLE_REPLY_MODE",

@@ -25,8 +25,6 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
             return;
         }
 
-        console.error("conversation",conversation);
-
         abortFunction();
 
         
@@ -36,7 +34,6 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
         const toParticipantList = [];
         const ccParticipantList = [];
         for await (let p of allConversationParticipants) {
-            console.error(p);
             if (p?.bindings?.email?.level == "to") {
                 toParticipantList.push(p?.bindings?.email?.address);
                 try{
@@ -51,11 +48,8 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
             }
         }
 
-        console.error(toParticipantList, ccParticipantList);
-
         const prevConversationAttributesJSON = await conversation?.getAttributes();
         const prevConvAttributes = JSON.parse(JSON.stringify(prevConversationAttributesJSON || {}));
-        console.error("prevConvAttributes",prevConvAttributes);
         const newConvAttributes = {
             ...(prevConvAttributes || {}),
             to: [
@@ -67,7 +61,6 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
                 ...ccParticipantList
             ],
         }
-        console.error("newConvAttributes",newConvAttributes);
         await conversation.updateAttributes(newConvAttributes);
 
 
@@ -89,7 +82,6 @@ if(projectedAddress!=null){
 
 
         //Upload attachments and create message
-        console.error("attachedFiles", attachedFiles);
         const newMessageBuilder = conversation?.prepareMessage()
             .setSubject(subject)
             .setAttributes({direction: 'outbound',to:toParticipantList,cc:ccParticipantList,from:[from]})
@@ -102,26 +94,13 @@ if(projectedAddress!=null){
         }
         const messageIndex = await newMessageBuilder.build().send();
 
-        console.error("messageIndex",messageIndex);
-
         if (messageIndex == null) {
             return;
         }
 
         const allConversationMessages = await conversation.getMessages(1, messageIndex, "backwards");
         const lastMessage = Array.from(allConversationMessages.items)[0];
-        const lastMessageSid= lastMessage.sid;
-
-       
-        
-        console.error({ from: from,
-            to: toParticipantList.join(","),
-            cc:ccParticipantList.join(","),
-            conversationSid,
-            body: htmlBody,
-            subject: subject,
-            conversationMessageSid:lastMessageSid});
-        
+        const lastMessageSid= lastMessage.sid;       
         
 
         try{
