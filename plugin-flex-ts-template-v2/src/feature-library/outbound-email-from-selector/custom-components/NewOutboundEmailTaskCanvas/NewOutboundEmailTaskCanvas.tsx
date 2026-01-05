@@ -77,7 +77,7 @@ interface Props {
 
         //4. Create new task
 
-        console.error("Selected From",selectedFrom);
+        //console.error("Selected From",selectedFrom);
 
         if(!hasValidationErrors){
             Flex.Actions.invokeAction("StartOutboundEmailTask", {
