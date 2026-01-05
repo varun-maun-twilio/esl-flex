@@ -8,7 +8,7 @@ export const componentHook = function replaceOutboundEmailForm(flex: typeof Flex
   if (!isFeatureEnabled() ) return;
 
   flex.NewTaskCanvas.Content.replace(<NewOutboundEmailTaskCanvas key="esl-outbound-email-form" />,{
-      if:(task)=>{console.error(task);return true}
+      if:(task)=>{return true}
   })
 
   flex.Notifications.registeredNotifications.delete("SendEmailFailed");
