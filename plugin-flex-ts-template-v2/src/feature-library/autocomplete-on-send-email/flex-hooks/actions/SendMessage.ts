@@ -111,7 +111,7 @@ if(projectedAddress!=null){
             to: toParticipantList.join(","),
             cc:ccParticipantList.join(","),
             conversationSid,
-            body: htmlBody,
+            body: htmlBody+historyBlock,
             subject: subject,
             conversationMessageSid:lastMessageSid
         })
