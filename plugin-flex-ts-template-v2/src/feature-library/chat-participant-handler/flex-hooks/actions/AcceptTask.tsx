@@ -31,7 +31,6 @@ export const actionHook = function handleAcceptTaskToRegisterConversationListene
     const conversationToBeChecked = await _manager.conversationsClient.getConversationBySid(conversationSid);
     if (conversationToBeChecked) {
       const convParticipantCount = await conversationToBeChecked.getParticipantsCount();
-      console.error("CHAT-PARTICIPANT-HANDLER: Accept Task Participant Count ", convParticipantCount);
       if (convParticipantCount == 1) {
         flex.Actions.invokeAction("WrapupTask", { task });
 

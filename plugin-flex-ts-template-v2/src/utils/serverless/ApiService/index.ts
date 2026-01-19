@@ -41,12 +41,16 @@ export default abstract class ApiService {
       logger.error('[ApiService] serverless_functions_domain is not set in flex config or env file');
   }
 
-  protected buildBody(encodedParams: EncodedParams): URLSearchParams {
-    const params = new URLSearchParams();
-    for( let oKey of  Object.keys(encodedParams)){
-        params.append(oKey, encodedParams[oKey] + "");
-    }
-    return params;
+  protected buildBody(encodedParams: EncodedParams): string {
+    return Object.keys(encodedParams).reduce((result, paramName, idx) => {
+      if (encodedParams[paramName] === undefined) {
+        return result;
+      }
+      if (idx > 0) {
+        return `${result}&${paramName}=${encodedParams[paramName]}`;
+      }
+      return `${paramName}=${encodedParams[paramName]}`;
+    }, '');
   }
 
   protected async fetchJsonWithReject<T>(url: string, config: RequestInit, attempts = 0): Promise<T> {

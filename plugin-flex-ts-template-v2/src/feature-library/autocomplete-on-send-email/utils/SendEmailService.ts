@@ -11,13 +11,19 @@ class SendEmailService extends ApiService {
       Token: encodeURIComponent(this.manager.user.token),
       ...sendEmailRequest,
     };
+
+    const bodyObj = new URLSearchParams();
+    for( let oKey of  Object.keys(encodedParams)){
+        bodyObj.append(oKey, encodedParams[oKey] + "");
+    }
+
     try {
       return await this.fetchJsonWithReject<any>(
         `${this.serverlessProtocol}://${this.serverlessDomain}/features/send-email/flex/send-to-smtp`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: this.buildBody(encodedParams),
+          body: bodyObj
         },
       );
     } catch (error: any) {

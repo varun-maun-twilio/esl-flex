@@ -65,9 +65,10 @@ export const actionHook = function cancelDefaultSendEmail(flex: typeof Flex, _ma
 
 
         //Fetch Email History
+     
         const {editMode,historyHtml} = JSON.parse(sessionStorage.getItem(`${conversationSid}-editor`)||"{}");
         let historyBlock =  (historyHtml!==undefined)? `<div style="padding-left:1rem;border-left:1px solid #ccc">${historyHtml}</div>`:"";
-        
+    
 
 //Extract From
 let from = "ESL";
@@ -85,7 +86,7 @@ if(projectedAddress!=null){
         const newMessageBuilder = conversation?.prepareMessage()
             .setSubject(subject)
             .setAttributes({direction: 'outbound',to:toParticipantList,cc:ccParticipantList,from:[from]})
-            .setEmailBody("text/html", { contentType: "text/html", media: `${htmlBody+historyBlock}` })
+            .setEmailBody("text/html", { contentType: "text/html", media: htmlBody })
             .setEmailBody("text/plain", { contentType: "text/plain", media: htmlBody });
         for (const file of attachedFiles) {
             const fileData = new FormData();
@@ -111,7 +112,7 @@ if(projectedAddress!=null){
             to: toParticipantList.join(","),
             cc:ccParticipantList.join(","),
             conversationSid,
-            body: htmlBody+historyBlock,
+            body: htmlBody,
             subject: subject,
             conversationMessageSid:lastMessageSid
         })

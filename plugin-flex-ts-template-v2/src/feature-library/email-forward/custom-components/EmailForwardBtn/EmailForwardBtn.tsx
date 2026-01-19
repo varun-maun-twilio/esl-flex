@@ -16,6 +16,11 @@ interface Props {
 
 }
 
+  const delay = (ms: number) => {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+
 const EmailForwardBtn = (props: any) => {
 
     const isReplyModeActive = useFlexSelector((state) => state.flex.chat.conversationInput[props?.conversationSid||""].isReplyModeActive);
@@ -75,6 +80,13 @@ const EmailForwardBtn = (props: any) => {
                 conversationSid: props.conversationSid
             }
         });
+
+        await delay(1500); 
+
+        Flex.Actions.invokeAction("SetInputText", {
+                body: `<hr style="display:inline-block;width:30%" /><blockquote style="margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">${props.message.bodyAttachment}</blockquote>`,
+                conversationSid: props.conversationSid
+        });
         
         
     }
@@ -132,6 +144,13 @@ const EmailForwardBtn = (props: any) => {
                 conversationSid: props.conversationSid
             }
         });
+
+        await delay(1500); 
+
+        Flex.Actions.invokeAction("SetInputText", {
+                body: `<hr style="display:inline-block;width:30%" /><blockquote style="margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">${props.message.bodyAttachment}</blockquote>`,
+                conversationSid: props.conversationSid
+        });
         
         
     }
@@ -183,6 +202,14 @@ const EmailForwardBtn = (props: any) => {
                 conversationSid: props.conversationSid
             }
         });
+
+
+    await delay(1500); 
+
+    Flex.Actions.invokeAction("SetInputText", {
+            body: props.message.bodyAttachment,
+            conversationSid: props.conversationSid
+    });
 
         
         
